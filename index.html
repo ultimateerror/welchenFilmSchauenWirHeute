@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Welchen Film schauen wir heute</title>
+		<style>
+			:root {
+				--c-h: 0;
+				--c: hsl(var(--c-h), 100%, 89%);
+				--c-bg: black;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			html,
+			body {
+				margin: 0;
+				padding: 0;
+				background: var(--c-bg);
+				color: color-mix(in srgb, var(--c) 70%, transparent);
+				height: 100dvh;
+				font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+					Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
+					sans-serif;
+				font-family: cursive;
+			}
+
+			body {
+				display: grid;
+				grid-template-rows: min-content 1fr min-content min-content;
+				gap: 1rem;
+				padding: 0 1rem;
+
+				h1 {
+					font-weight: normal;
+					text-decoration: underline;
+					text-decoration-style: dotted;
+				}
+
+				textarea {
+					--tmp: color-mix(in srgb, var(--c) 20%, transparent);
+					border: 1px solid var(--tmp);
+					background: var(--tmp);
+					box-shadow: inset 0 0 0.3rem black;
+					color: var(--c);
+					padding: 1rem;
+					border-radius: 0.3rem;
+					font-size: 1rem;
+				}
+
+				.actions {
+					display: flex;
+					gap: 1rem;
+					margin-bottom: 2rem;
+
+					button {
+						font-family: cursive;
+						border: 0;
+						background: color-mix(in srgb, var(--c) 30%, transparent);
+						color: var(--c);
+						padding: 1rem;
+						font-weight: bold;
+						border-radius: 0.3rem;
+
+						&:hover {
+							background: var(--c);
+							color: var(--c-bg);
+						}
+					}
+
+					.result {
+						font-size: 0.9rem;
+
+						output {
+							color: var(--c);
+							font-weight: bold;
+							font-size: 1rem;
+							display: block;
+						}
+					}
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<h1 contenteditable>Welchen Film schauen wir heute?</h1>
+		<textarea></textarea>
+
+		<div class="actions">
+			<button>Ziehen</button>
+
+			<div class="result">
+				Ergebnis:
+				<output>...</output>
+			</div>
+		</div>
+	</body>
+
+	<script>
+		const list = localStorage.getItem('list');
+		document.querySelector('textarea').value = list || '';
+
+		document.querySelector('textarea').addEventListener('change', storeList);
+
+		function storeList(evnt) {
+			localStorage.setItem('list', evnt.target.value);
+		}
+	</script>
+
+	<script>
+		document.querySelector('button').addEventListener('click', go);
+
+		function go() {
+			const values = [
+				...new Set([
+					...document
+						.querySelector('textarea')
+						.value.replaceAll('\r\n', ' ')
+						.replaceAll('\n', ' ')
+						.split(' ')
+						.filter(x => x)
+				])
+			];
+
+			const length = values.length;
+
+			const index = Math.floor(Math.random() * length);
+
+			document.querySelector('output').value = values.at(index) || '?';
+		}
+
+		setInterval(() => {
+			requestAnimationFrame(updateColor);
+		}, 20);
+
+		let colorHue = Math.floor(Math.random() * 360);
+		function updateColor() {
+			++colorHue;
+			if (colorHue === 361) {
+				colorHue = 0;
+			}
+			document.documentElement.style.setProperty('--c-h', colorHue);
+		}
+	</script>
+</html>
